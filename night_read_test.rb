@@ -5,24 +5,33 @@ require './night_read'
 
 class NightReaderTest < Minitest::Test
   def test_decoding_letters
-    text = "0.0.00\n..0...\n......\n"
+    braille = "0.0.00\n..0...\n......\n"
     night = NightReader.new
-    message = night.decode_to_text(text)
+    message = night.decode_to_text(braille)
     assert_equal "abc", message
   end
 
   def test_all_spaces
-    text = "......\n......\n......\n"
+    braille = "......\n......\n......\n"
     night = NightReader.new
-    message = night.decode_to_text(text)
+    message = night.decode_to_text(braille)
     assert_equal "   ", message
   end
 
   def test_punctuation
-    text = "......\n..0000\n000..0\n"
+    braille = "......\n..0000\n000..0\n"
     night = NightReader.new
-    message = night.decode_to_text(text)
+    message = night.decode_to_text(braille)
     assert_equal "!?.", message
+  end
+
+  def test_character_assembly
+    braille = ['0.', '..', '..']
+    night = NightReader.new
+    letter = night.assemble_char(braille, 0)
+    assert_equal 'a', letter
+
+
   end
 
   def test_encoding_numbers

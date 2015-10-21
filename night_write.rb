@@ -19,7 +19,6 @@ class NightWriter
   def initialize
     @reader = FileReader.new
     @writer = FileWriter.new
-    @text = @reader
     @braille = ''
     @dots = {"a" => ['0.', '..', '..'], "b" => ['0.', '0.', '..'], "c" => ['00', '..', '..'],
             "d" => ['00', '.0', '..'], "e" => ['0.', '.0', '..'], "f" => ['00', '0.', '..'],
@@ -32,21 +31,30 @@ class NightWriter
             "y" => ['00', '.0', '00'], "z" => ['0.', '.0', '00'], " " => ['..', '..', '..'],
             "?" => ['..', '00', '0.'], "'" => ['..', '..', '0.'], "," => ['..', '0.', '..'],
             "!" => ['..', '..', '00'], "." => ['..', '00', '.0'], "-" => ['..', '0.', '00'],
+            "shift" => ['..', '..', '.0']
             }
   end
 
   def encode_to_braille(file)
     line0, line1, line2 = '', '', ''
-    file.each_char { |char| line0 << @dots[char][0] }
-    file.each_char { |char| line1 << @dots[char][1] }
-    file.each_char { |char| line2 << @dots[char][2] }
+    file.each_char do |char|
+      line0 << @dots["shift"][0] if char == char.upcase
+      line0 << @dots[char.downcase][0]
+    end
+    file.each_char do |char|
+      line1 << @dots["shift"][1] if char == char.upcase
+      line1 << @dots[char.downcase][1]
+    end
+    file.each_char do |char|
+      line2 << @dots["shift"][2] if char == char.upcase
+      line2 << @dots[char.downcase][2]
+    end
     @braille << line0 + "\n" + line1 + "\n" + line2 + "\n"
-    # write_file(line0, line1, line2)
   end
 
   def write_file(handle)
     handle.write(@braille)
-    puts "Just write a file to #{@handle} that is #{@braille.length / 2} chars long"
+    puts "Just wrote a file to #{@handle} that is #{@braille.length / 2} chars long"
   end
 
 end

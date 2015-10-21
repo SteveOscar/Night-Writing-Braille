@@ -14,12 +14,11 @@ class FileWriter
 end
 
 class NightReader
-  attr_reader :reader, :writer, :dots, :lines, :message, :writer
+  attr_reader :reader, :writer, :dots, :message, :braille_char
 
   def initialize
     @reader = FileReader.new
     @writer = FileWriter.new
-
     @message = ''
     @dots = {"a" => ['0.', '..', '..'], "b" => ['0.', '0.', '..'], "c" => ['00', '..', '..'],
             "d" => ['00', '.0', '..'], "e" => ['0.', '.0', '..'], "f" => ['00', '0.', '..'],
@@ -35,25 +34,25 @@ class NightReader
             }.invert
   end
 
-
   def decode_to_text(file)
     text = file.lines
-    l = text[0].length / 2 # l determines loops through braille file
-    message = ''
-    j = 0
+    j, l = 0, (text[0].length / 2)
     l.times do
-      braille_char = []
-      i = 0
-      3.times do
-        braille_char << text[i][j,2]
-        i += 1
-      end
+      assemble_char(text, j)
       j += 2
-      found = @dots.has_key?(braille_char)
-      @message << @dots[braille_char]
+      @message << @dots[@braille_char]
     end
-    @message
+    @message #for tests
+  end
 
+  def assemble_char(input_text, counter)
+    i = 0
+    @braille_char = []
+    3.times do
+      @braille_char << input_text[i][counter,2]
+      i += 1
+    end
+    @braille_char # for tests
   end
 
   def write_file(handle)
@@ -69,7 +68,4 @@ if __FILE__ == $0
   read_instance.decode_to_text(file)
   handle = read_instance.writer.output
   read_instance.write_file(handle)
-
-  #puts "Created filename containing #{@message.length} characters"
-  #@message
 end
