@@ -25,6 +25,13 @@ class NightWriterTest < Minitest::Test
     assert_equal "......\n......\n......\n", message
   end
 
+  def test_shift_capitalization
+    text = 'Aa'
+    night = NightWriter.new
+    message = night.encode_to_braille(text)
+    assert_equal "..0.0.\n......\n.0....\n", message
+  end
+
   def test_encoding_numbers
     skip
     text = '783'

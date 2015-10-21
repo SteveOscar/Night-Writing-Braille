@@ -37,16 +37,17 @@ class NightWriter
   def encode_to_braille(file)
     line0, line1, line2 = '', '', ''
     file.each_char do |char|
-      line0 << @dots["shift"][0] if char == char.upcase
+      line0 << @dots["shift"][0] if char == char.upcase && char.upcase != char
       line0 << @dots[char.downcase][0]
     end
     file.each_char do |char|
-      line1 << @dots["shift"][1] if char == char.upcase
+      line1 << @dots["shift"][1] if char == char.upcase && char.upcase != char
       line1 << @dots[char.downcase][1]
     end
     file.each_char do |char|
-      line2 << @dots["shift"][2] if char == char.upcase
+      line2 << @dots["shift"][2] if char == char.upcase && char.upcase != char
       line2 << @dots[char.downcase][2]
+      
     end
     @braille << line0 + "\n" + line1 + "\n" + line2 + "\n"
   end
