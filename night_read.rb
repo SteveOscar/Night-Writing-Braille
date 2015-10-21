@@ -6,12 +6,21 @@ class FileReader
   end
 end
 
+class FileWriter
+  def output
+    filename = ARGV[1]
+    File.open(filename, "w")
+  end
+
+end
+
 class NightReader
-  attr_reader :reader, :writer, :text, :dots, :lines, :message
+  attr_reader :reader, :writer, :dots, :lines, :message, :writer
 
   def initialize
     @reader = FileReader.new
-    @text = @reader
+    @writer = FileWriter.new
+
     @message = ''
     @dots = {"a" => ['0.', '..', '..'], "b" => ['0.', '0.', '..'], "c" => ['00', '..', '..'],
             "d" => ['00', '.0', '..'], "e" => ['0.', '.0', '..'], "f" => ['00', '0.', '..'],
@@ -26,6 +35,7 @@ class NightReader
             "!" => ['..', '..', '00'], "." => ['..', '00', '.0'], "-" => ['..', '0.', '00'],
             }.invert
   end
+
 
   def decode_to_text(file)
     text = file.lines
@@ -43,26 +53,24 @@ class NightReader
       found = @dots.has_key?(braille_char)
       @message << @dots[braille_char]
     end
-  output_file
+    @message
+
   end
 
-  def output_file
-    out = File.open("reader_output.txt", "w")
-    out.write(@message)
-    puts "Created filename containing #{@message.length} characters"
-    @message
+  def write_file(handle)
+    handle.write(@message)
+    puts "Just write a file to #{@handle} that is #{@message.length / 2} chars long"
   end
+
 end
 
-# class FileReader
-#   def read
-#     filename = ARGV[0]
-#     File.read(filename)
-#   end
-# end
-
 if __FILE__ == $0
-  night = NightReader.new
-  file = night.reader.read
-  night.decode_to_text(file)
+  read_instance = NightReader.new
+  file = read_instance.reader.read
+  read_instance.decode_to_text(file)
+  handle = read_instance.writer.output
+  read_instance.write_file(handle)
+
+  #puts "Created filename containing #{@message.length} characters"
+  #@message
 end
