@@ -36,11 +36,20 @@ class NightReader
 
   def decode_to_text(file)
     text = file.lines
-    j, l = 0, (text[0].length / 2)
-    l.times do
+    x, j, l = 0, 0, (text[0].length / 2)
+    until x >= l
       assemble_char(text, j)
       j += 2
-      @message << @dots[@braille_char]
+      if @braille_char == ['..', '..', '.0']
+
+        assemble_char(text, j)
+        j += 2
+        @message << (@dots[@braille_char]).upcase
+        x += 2
+      else
+        @message << @dots[@braille_char]
+        x += 1
+      end
     end
     @message #for tests
   end
@@ -57,7 +66,7 @@ class NightReader
 
   def write_file(handle)
     handle.write(@message)
-    puts "Just write a file to #{@handle} that is #{@message.length / 2} chars long"
+    puts "Just write a file to #{@handle} that is #{@message.length} chars long"
   end
 
 end
