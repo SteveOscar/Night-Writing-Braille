@@ -46,15 +46,20 @@ class NightReader
   output_file
   end
 
-
   def output_file
     out = File.open("reader_output.txt", "w")
     out.write(@message)
     puts "Created filename containing #{@message.length} characters"
     @message
   end
-
 end
+
+# class FileReader
+#   def read
+#     filename = ARGV[0]
+#     File.read(filename)
+#   end
+# end
 
 if __FILE__ == $0
   night = NightReader.new
