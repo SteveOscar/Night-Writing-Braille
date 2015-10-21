@@ -6,11 +6,19 @@ class FileReader
   end
 end
 
+class FileWriter
+  def output
+    filename = ARGV[1]
+    File.open(filename, "w")
+  end
+end
+
 class NightWriter
   attr_reader :reader, :writer, :braille, :dots
 
   def initialize
     @reader = FileReader.new
+    @writer = FileWriter.new
     @text = @reader
     @braille = ''
     @dots = {"a" => ['0.', '..', '..'], "b" => ['0.', '0.', '..'], "c" => ['00', '..', '..'],
@@ -34,20 +42,19 @@ class NightWriter
     file.each_char { |char| line2 << @dots[char][2] }
     @braille << line0 + "\n" + line1 + "\n" + line2 + "\n"
     # write_file(line0, line1, line2)
-    output_file
   end
 
-  def output_file
-    out = File.open("output.txt", "w")
-    out.write(@braille)
-    puts "Created filename containing #{(@braille.length / 2)} characters"
-    @braille
+  def write_file(handle)
+    handle.write(@braille)
+    puts "Just write a file to #{@handle} that is #{@braille.length / 2} chars long"
   end
 
 end
 
 if __FILE__ == $0
-  night = NightWriter.new
-  file = night.reader.read
-  night.encode_to_braille(file)
+  read_instance = NightWriter.new
+  file = read_instance.reader.read
+  read_instance.encode_to_braille(file)
+  handle = read_instance.writer.output
+  read_instance.write_file(handle)
 end

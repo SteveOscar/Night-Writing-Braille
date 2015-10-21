@@ -11,7 +11,6 @@ class FileWriter
     filename = ARGV[1]
     File.open(filename, "w")
   end
-
 end
 
 class NightReader
