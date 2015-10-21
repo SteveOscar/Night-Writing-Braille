@@ -15,7 +15,6 @@ end
 
 class NightWriter
   attr_reader :reader, :writer, :braille, :dots
-
   def initialize
     @reader = FileReader.new
     @writer = FileWriter.new
@@ -31,31 +30,31 @@ class NightWriter
             "y" => ['00', '.0', '00'], "z" => ['0.', '.0', '00'], " " => ['..', '..', '..'],
             "?" => ['..', '00', '0.'], "'" => ['..', '..', '0.'], "," => ['..', '0.', '..'],
             "!" => ['..', '..', '00'], "." => ['..', '00', '.0'], "-" => ['..', '0.', '00'],
-            "shift" => ['..', '..', '.0']}
+            "1" => ['0.', '..', '..'], "2" => ['0.', '0.', '..'], "3" => ['00', '..', '..'],
+            "4" => ['00', '.0', '..'], "5" => ['0.', '.0', '..'], "6" => ['00', '0.', '..'],
+            "7" => ['00', '00', '..'], "8" => ['0.', '00', '..'], "9" => ['.0', '0.', '..'],
+            "0" => ['.0', '00', '..'], "^" => ['..', '..', '.0'], "nu" => ['.0', '.0', '00']}
+  end
+
+  def write_braille_row(file, line, i)
+    file.each_char do |char|
+      line << @dots["^"][i] if char == char.upcase && char.downcase != char
+      line << @dots[char.downcase][i]
+    end
+    @braille << line + "\n"
   end
 
   def encode_to_braille(file)
     line0, line1, line2 = '', '', ''
-    file.each_char do |char|
-      line0 << @dots["shift"][0] if char == char.upcase && char.downcase != char
-      line0 << @dots[char.downcase][0]
-    end
-    file.each_char do |char|
-      line1 << @dots["shift"][1] if char == char.upcase && char.downcase != char
-      line1 << @dots[char.downcase][1]
-    end
-    file.each_char do |char|
-      line2 << @dots["shift"][2] if char == char.upcase && char.downcase != char
-      line2 << @dots[char.downcase][2]
-    end
-    @braille << line0 + "\n" + line1 + "\n" + line2 + "\n"
+    write_braille_row(file, line0, 0)
+    write_braille_row(file, line1, 1)
+    write_braille_row(file, line2, 2)
   end
 
   def write_file(handle)
     handle.write(@braille)
     puts "Just wrote a file to #{@handle} that is #{@braille.length / 2} chars long"
   end
-
 end
 
 if __FILE__ == $0
@@ -65,3 +64,17 @@ if __FILE__ == $0
   handle = read_instance.writer.output
   read_instance.write_file(handle)
 end
+
+
+# file.each_char do |char|
+#   return line0 if line0.length >= (file.length / 3)
+#   if ('0'..'9').include?(char)
+#     line0 << @dots["nu"][0] # switch on with shift
+#     file.each_char { |char| line0 << @dots[char][0] until ('a'..'z').include?(char) }
+#     line0 << @dots[" "][0] # switch off with space
+#     encode_to_braille(file)
+#   else
+#     line0 << @dots["^"][0] if char == char.upcase && char.downcase != char
+#     line0 << @dots[char.downcase][0]
+#   end
+# end
