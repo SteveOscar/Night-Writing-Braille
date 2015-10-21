@@ -36,10 +36,18 @@ class NightWriter
             "0" => ['.0', '00', '..'], "^" => ['..', '..', '.0'], "nu" => ['.0', '.0', '00']}
   end
 
+
+
   def write_braille_row(file, line, i)
-    file.each_char do |char|
-      line << @dots["^"][i] if char == char.upcase && char.downcase != char
-      line << @dots[char.downcase][i]
+    j = 0
+    until j >= file.length
+      if ('0'..'9').include?(file[j])
+        line << @dots["nu"][i] unless ('0'..'9').include?(file[j + 1])
+      else
+        line << @dots["^"][i] if file[j] == file[j].upcase && file[j].downcase != file[j]
+      end
+      line << @dots[file[j].downcase][i]
+      j += 1
     end
     @braille << line + "\n"
   end
@@ -50,6 +58,14 @@ class NightWriter
     write_braille_row(file, line1, 1)
     write_braille_row(file, line2, 2)
   end
+
+  # def add_number_formatting
+  #   i, j = 0, 0
+  #   lines = @braille.split("\n")
+  #   word = [lines[i][j, 2]] + [lines[i + 1][j, 2]] + [lines[i + 2][j, 2]]
+  #
+  # end
+
 
   def write_file(handle)
     handle.write(@braille)
