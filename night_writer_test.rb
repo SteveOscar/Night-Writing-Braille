@@ -31,12 +31,18 @@ class NightWriterTest < Minitest::Test
     message = night.encode_to_braille(text)
     assert_equal "..0.0.\n......\n.0....\n", message
   end
+  #
+  def test_single_number
+    text = '8'
+    night = NightWriter.new
+    message = night.encode_to_braille(text)
+    assert_equal ".00.\n.000\n00..\n", message
+  end
 
-  # def test_encoding_numbers
-  #   skip
-  #   text = '783'
-  #   night = NightWriter.new
-  #   message = night.encode_to_braille(text)
-  #   assert_equal "0.0.00\n..0...\n......\n", message
-  # end
+  def test_multiple_numbers
+    text = '82'
+    night = NightWriter.new
+    message = night.encode_to_braille(text)
+    assert_equal ".00.0.\n.0000.\n00....\n", message
+  end
 end

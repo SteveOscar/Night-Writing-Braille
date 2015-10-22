@@ -41,11 +41,11 @@ class NightWriter
   def write_braille_row(file, line, i)
     j = 0
     until j >= file.length
+      line << @dots["^"][i] if file[j] == file[j].upcase && file[j].downcase != file[j]
       if ('0'..'9').include?(file[j])
-        line << @dots["nu"][i] unless ('0'..'9').include?(file[j + 1])
-      else
-        line << @dots["^"][i] if file[j] == file[j].upcase && file[j].downcase != file[j]
+        line << @dots["nu"][i] unless ('0'..'9').include?(file[j - 1]) && j > 0
       end
+
       line << @dots[file[j].downcase][i]
       j += 1
     end
