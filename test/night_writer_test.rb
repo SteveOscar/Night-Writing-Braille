@@ -1,7 +1,7 @@
 require 'pry'
 require 'minitest'
 require 'minitest/autorun'
-require './night_write'
+require './lib/night_write'
 
 class NightWriterTest < Minitest::Test
   def test_encoding_letters
@@ -25,24 +25,24 @@ class NightWriterTest < Minitest::Test
     assert_equal "......\n......\n......\n", message
   end
 
-  def test_shift_capitalization
+  def test_shift_switch
     text = 'Aa'
     night = NightWriter.new
     message = night.encode_to_braille(text)
     assert_equal "..0.0.\n......\n.0....\n", message
   end
-  #
-  def test_single_number
-    text = '8'
-    night = NightWriter.new
-    message = night.encode_to_braille(text)
-    assert_equal ".00.\n.000\n00..\n", message
-  end
 
-  def test_multiple_numbers
+  def test_numbers_switch
     text = '82'
     night = NightWriter.new
     message = night.encode_to_braille(text)
-    assert_equal ".00.0.\n.0000.\n00....\n", message
+    assert_equal ".00.0...\n.0000...\n00......\n", message
+  end
+
+  def test_capital_with_number
+    text = 'A8'
+    night = NightWriter.new
+    message = night.encode_to_braille(text)
+    assert_equal "..0..00...\n.....000..\n.0..00....\n", message
   end
 end

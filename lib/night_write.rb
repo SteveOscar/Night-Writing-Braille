@@ -35,15 +35,18 @@ class NightWriter
             "7" => ['00', '00', '..'], "8" => ['0.', '00', '..'], "9" => ['.0', '0.', '..'],
             "0" => ['.0', '00', '..'], "^" => ['..', '..', '.0'], "nu" => ['.0', '.0', '00']}
   end
-  
+
   def write_braille_row(file, line, i)
     j = 0
     until j >= file.length
       line << @dots["^"][i] if file[j] == file[j].upcase && file[j].downcase != file[j]
       if ('0'..'9').include?(file[j])
         line << @dots["nu"][i] unless ('0'..'9').include?(file[j - 1]) && j > 0
+        line << @dots[file[j].downcase][i]
+        line << @dots[" "][i] unless ('0'..'9').include?(file[j + 1])
+      else
+        line << @dots[file[j].downcase][i]
       end
-      line << @dots[file[j].downcase][i]
       if ('0'..'9').include?(file[j]) && ('a'..'z').include?(file[j + 1])
         line << @dots[" "][i]
       end

@@ -38,17 +38,7 @@ class NightReader
     @nums = {"1" => ['0.', '..', '..'], "2" => ['0.', '0.', '..'], "3" => ['00', '..', '..'],
              "4" => ['00', '.0', '..'], "5" => ['0.', '.0', '..'], "6" => ['00', '0.', '..'],
              "7" => ['00', '00', '..'], "8" => ['0.', '00', '..'], "9" => ['.0', '0.', '..'],
-             "0" => ['.0', '00', '..'], }.invert
-  end
-  
-  def decode_to_text(file)
-    text = file.lines
-    until @i >= (text[0].length / 2)
-      assemble_char(text, j)
-      @j += 2
-      check_for_shift(text)
-    end
-    @message #for tests
+             "0" => ['.0', '00', '..'], "nu" => ['.0', '.0', '00'], " " => ['..', '..', '..'] }.invert
   end
 
   def assemble_char(input_text, counter)
@@ -61,7 +51,17 @@ class NightReader
     @braille_char # for tests
   end
 
-  def check_for_shift(text)
+  def decode_to_text(file)
+    text = file.lines
+    until @i >= (text[0].length / 2)
+      assemble_char(text, j)
+      @j += 2
+      check_for_switch(text)
+    end
+    @message #for tests
+  end
+
+  def check_for_switch(text)
     if @braille_char == @dots.key("^")
       @message << (@dots[assemble_char(text, @j)]).upcase
       @j += 2; @i += 2
@@ -74,11 +74,14 @@ class NightReader
   end
 
   def numbers_triggered(text)
-    @message << (@nums[assemble_char(text, @j)])
+    @message << (@nums[assemble_char(text, @j)]) unless @nums[@braille_char] == " "
     @j += 2; @i += 2
     loop do
       assemble_char(text, @j)
-      break if @braille_char == @dots.key(" ") || @i >= (text[0].length / 2)
+      if @braille_char == @dots.key(" ") || @i >= (text[0].length / 2)
+        @j += 2; @i += 1
+        break
+      end
       @message << @nums[@braille_char]
       @j += 2; @i += 1
     end
@@ -86,16 +89,15 @@ class NightReader
 
   def write_file(handle)
     handle.write(@message)
-    binding.pry
     puts "Wrote a file to #{ARGV[1]} that is #{@message.length} characters long"
   end
 
-end
+  end
 
-if __FILE__ == $0
+  if __FILE__ == $0
   read_instance = NightReader.new
   file = read_instance.reader.read
   read_instance.decode_to_text(file)
   handle = read_instance.writer.output
   read_instance.write_file(handle)
-end
+  end
