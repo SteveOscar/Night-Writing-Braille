@@ -14,11 +14,13 @@ class FileWriter
 end
 
 class NightReader
-  attr_reader :reader, :writer, :dots, :message, :braille_char, :nums
+  attr_reader :reader, :writer, :dots, :message, :braille_char, :nums, :i, :j
 
   def initialize
     @reader = FileReader.new
     @writer = FileWriter.new
+    @i = 0
+    @j = 0
     @message = ''
     @dots = {"a" => ['0.', '..', '..'], "b" => ['0.', '0.', '..'], "c" => ['00', '..', '..'],
             "d" => ['00', '.0', '..'], "e" => ['0.', '.0', '..'], "f" => ['00', '0.', '..'],
@@ -38,32 +40,13 @@ class NightReader
              "7" => ['00', '00', '..'], "8" => ['0.', '00', '..'], "9" => ['.0', '0.', '..'],
              "0" => ['.0', '00', '..'], }.invert
   end
-
+  
   def decode_to_text(file)
     text = file.lines
-    i, j, l = 0, 0, (text[0].length / 2)
-    until i >= l
+    until @i >= (text[0].length / 2)
       assemble_char(text, j)
-      j += 2
-      if @braille_char == @dots.key("^")
-        @message << (@dots[assemble_char(text, j)]).upcase
-        j += 2
-        i += 2
-      elsif @braille_char == @dots.key("nu")
-          @message << (@nums[assemble_char(text, j)])
-          j += 2
-          i += 2
-          loop do
-            assemble_char(text, j)
-            break if @braille_char == @dots.key(" ") || i >= l
-            @message << @nums[@braille_char]
-            j += 2
-            i += 1
-        end
-      else
-        @message << @dots[@braille_char]
-        i += 1
-      end
+      @j += 2
+      check_for_shift(text)
     end
     @message #for tests
   end
@@ -78,9 +61,33 @@ class NightReader
     @braille_char # for tests
   end
 
+  def check_for_shift(text)
+    if @braille_char == @dots.key("^")
+      @message << (@dots[assemble_char(text, @j)]).upcase
+      @j += 2; @i += 2
+    elsif @braille_char == @dots.key("nu")
+      numbers_triggered(text)
+    else
+      @message << @dots[@braille_char]
+      @i += 1
+    end
+  end
+
+  def numbers_triggered(text)
+    @message << (@nums[assemble_char(text, @j)])
+    @j += 2; @i += 2
+    loop do
+      assemble_char(text, @j)
+      break if @braille_char == @dots.key(" ") || @i >= (text[0].length / 2)
+      @message << @nums[@braille_char]
+      @j += 2; @i += 1
+    end
+  end
+
   def write_file(handle)
     handle.write(@message)
-    puts "Wrote a file to #{@handle} that is #{@message.length} chars long"
+    binding.pry
+    puts "Wrote a file to #{ARGV[1]} that is #{@message.length} characters long"
   end
 
 end
