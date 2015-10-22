@@ -14,7 +14,7 @@ class FileWriter
 end
 
 class NightReader
-  attr_reader :reader, :writer, :dots, :message, :braille_char
+  attr_reader :reader, :writer, :dots, :message, :braille_char, :nums
 
   def initialize
     @reader = FileReader.new
@@ -31,24 +31,38 @@ class NightReader
             "y" => ['00', '.0', '00'], "z" => ['0.', '.0', '00'], " " => ['..', '..', '..'],
             "?" => ['..', '00', '0.'], "'" => ['..', '..', '0.'], "," => ['..', '0.', '..'],
             "!" => ['..', '..', '00'], "." => ['..', '00', '.0'], "-" => ['..', '0.', '00'],
-            "shift" => ['..', '..', '.0']}.invert
+            "^" => ['..', '..', '.0'], "nu" => ['.0', '.0', '00']}.invert
+
+    @nums = {"1" => ['0.', '..', '..'], "2" => ['0.', '0.', '..'], "3" => ['00', '..', '..'],
+             "4" => ['00', '.0', '..'], "5" => ['0.', '.0', '..'], "6" => ['00', '0.', '..'],
+             "7" => ['00', '00', '..'], "8" => ['0.', '00', '..'], "9" => ['.0', '0.', '..'],
+             "0" => ['.0', '00', '..'], }.invert
   end
 
   def decode_to_text(file)
     text = file.lines
-    x, j, l = 0, 0, (text[0].length / 2)
-    until x >= l
+    i, j, l = 0, 0, (text[0].length / 2)
+    until i >= l
       assemble_char(text, j)
       j += 2
-      if @braille_char == ['..', '..', '.0']
-
-        assemble_char(text, j)
+      if @braille_char == @dots.key("^")
+        @message << (@dots[assemble_char(text, j)]).upcase
         j += 2
-        @message << (@dots[@braille_char]).upcase
-        x += 2
+        i += 2
+      elsif @braille_char == @dots.key("nu")
+          @message << (@nums[assemble_char(text, j)])
+          j += 2
+          i += 2
+          loop do
+            assemble_char(text, j)
+            break if @braille_char == @dots.key(" ") || i >= l
+            @message << @nums[@braille_char]
+            j += 2
+            i += 1
+        end
       else
         @message << @dots[@braille_char]
-        x += 1
+        i += 1
       end
     end
     @message #for tests
@@ -66,7 +80,7 @@ class NightReader
 
   def write_file(handle)
     handle.write(@message)
-    puts "Just write a file to #{@handle} that is #{@message.length} chars long"
+    puts "Wrote a file to #{@handle} that is #{@message.length} chars long"
   end
 
 end
